@@ -10,8 +10,9 @@ class QListWidget;
 class QWidget;
 
 struct sleepTime {
-    QDateTime startTime;
-    QDateTime endTime;
+    int index;
+    QString date;
+    QString time;
     int duration;
 };
 
@@ -23,21 +24,17 @@ public:
     ~MainWindow();
 
 private slots:
-    void onItemClicked(QListWidgetItem *item);
-    void loadSleepData();
+    void onRowClicked(int index);
+    void onRowHovered(int index, bool hovered);
 
 private:
     void setupUI();
-    void setupLeftSidebar();
-    void setupCentralArea();
-    void createSleepRowItem(const sleepTime& sleep);
+    void createSleepItem(const sleepTime &sleepItem);
+    void loadSleepData();
     void saveSleepData();
 
     QWidget *mainWidget;
-    QWidget *leftSideWidget;
-    QWidget *centralWidget;
-    QWidget *rightSideWidget;
-    QHBoxLayout *mainLayout;
+    QVBoxLayout *mainLayout;
     QListWidget *sleepListWidget;
 
     QVector<sleepTime> sleepData;

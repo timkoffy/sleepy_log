@@ -15,6 +15,8 @@ find_package(Qt6 COMPONENTS
 add_executable(sleepy_log main.cpp
         src/ui/mainWindow.cpp
         src/ui/mainWindow.h
+        src/ui/sleepRowWidget.cpp
+        src/ui/sleepRowWidget.h
 )
 target_link_libraries(sleepy_log
         Qt6::Core
