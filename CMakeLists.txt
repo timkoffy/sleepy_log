@@ -12,7 +12,10 @@ find_package(Qt6 COMPONENTS
         Widgets
         REQUIRED)
 
-add_executable(sleepy_log main.cpp)
+add_executable(sleepy_log main.cpp
+        src/ui/mainWindow.cpp
+        src/ui/mainWindow.h
+)
 target_link_libraries(sleepy_log
         Qt6::Core
         Qt6::Gui
