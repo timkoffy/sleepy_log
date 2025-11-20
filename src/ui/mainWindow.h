@@ -13,7 +13,7 @@ struct sleepTime {
     int index;
     QString date;
     QString time;
-    int duration;
+    QString duration;
 };
 
 class MainWindow : public QMainWindow {
@@ -29,7 +29,7 @@ private slots:
 
 private:
     void setupUI();
-    void createSleepItem(const sleepTime &sleepItem);
+    void createSleepItem(sleepTime &sleepItem);
     void loadSleepData();
     void saveSleepData();
 

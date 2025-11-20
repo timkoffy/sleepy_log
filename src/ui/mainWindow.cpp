@@ -35,14 +35,12 @@ void MainWindow::setupUI() {
     sleepListLayout->setContentsMargins(0, 0, 0, 0);
     sleepListLayout->setSpacing(0);
 
-    srand(2190129);
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < 30; i++) {
         sleepTime t;
         t.index = 0;
         t.date = "12/11/2025";
-        t.time = "12:10";
-        t.duration = rand()%300;
-        qDebug() << t.duration;
+        t.time = "23:35";
+        t.duration = "05:10";
         createSleepItem(t);
     }
 
@@ -51,7 +49,7 @@ void MainWindow::setupUI() {
     this->show();
 }
 
-void MainWindow::createSleepItem(const sleepTime &sleepItem) {
+void MainWindow::createSleepItem(sleepTime &sleepItem) {
     auto w = new SleepRowWidget(sleepItem.index, sleepItem.date, sleepItem.time, sleepItem.duration, mainWidget);
     connect(w, &SleepRowWidget::rowClicked, this, &MainWindow::onRowClicked);
     connect(w, &SleepRowWidget::rowHovered, this, &MainWindow::onRowHovered);
