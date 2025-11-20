@@ -8,9 +8,6 @@ class SleepRowWidget : public QWidget {
 public:
     explicit SleepRowWidget(int index, const QString& date, const QString& time,
         int duration, QWidget *parent = nullptr);
-    QString date;
-    QString time;
-    int duration;
 
 signals:
     void rowClicked(int index);
@@ -25,6 +22,9 @@ private:
     int rowIndex;
     bool isHovered;
     bool isSelected;
+    QString _date;
+    QString _time;
+    int _duration;
 
     QWidget* leftPart;
     QWidget* centerPart;

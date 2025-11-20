@@ -3,7 +3,7 @@
 
 SleepRowWidget::SleepRowWidget(int index, const QString& date, const QString& time,
         int duration, QWidget *parent)
-    : QWidget(parent), rowIndex(index), isHovered(false) {
+    : QWidget(parent), rowIndex(index), isHovered(false), _duration(duration) {
 
     setFixedHeight(27);
     setMouseTracking(true);
@@ -42,37 +42,23 @@ void SleepRowWidget::setupUI() {
 }
 
 void SleepRowWidget::setupLeftPart() {
-
+    // soon
 }
 
 void SleepRowWidget::setupCentral() {
     QHBoxLayout *centerLayout = new QHBoxLayout(centerPart);
-    centerLayout->setContentsMargins(5, 5, 5, 5);
-
-    // Прогресс-бар для отображения длительности сна
-    QWidget *progressBg = new QWidget();
-    progressBg->setFixedHeight(12);
-    progressBg->setStyleSheet("background: #D0D0D0; border-radius: 6px;");
-
-    QHBoxLayout *progressLayout = new QHBoxLayout(progressBg);
-    progressLayout->setContentsMargins(1, 1, 1, 1);
+    centerLayout->setContentsMargins(0, 0, 0, 0);
+    centerLayout->setAlignment(Qt::AlignLeft);
 
     QWidget *progressBar = new QWidget();
-    int barWidth = qMax(10, duration / 10); // Регулируемая ширина
-    progressBar->setFixedWidth(barWidth);
-    progressBar->setStyleSheet("background: #4CAF50; border-radius: 5px;");
+    progressBar->setFixedWidth(_duration);
+    progressBar->setStyleSheet("background: #667AFF");
 
-    progressLayout->addWidget(progressBar);
-    progressLayout->addStretch();
-
-    centerLayout->addWidget(progressBg);
+    centerLayout->addWidget(progressBar);
 }
 
 void SleepRowWidget::mousePressEvent(QMouseEvent *event) {
-    if (event->button() == Qt::LeftButton) {
-        emit rowClicked(index);
-    }
-    QWidget::mousePressEvent(event);
+    // soon
 }
 
 void SleepRowWidget::enterEvent(QEnterEvent *event) {
@@ -84,12 +70,12 @@ void SleepRowWidget::leaveEvent(QEvent *event) {
 }
 
 void SleepRowWidget::updateStyle() {
-    QString styleCentralBG = "background #FFFFFF";
-    QString styleSideBG = "background #ECECEC";
+    QString styleCentralBG = "background: #FFFFFF";
+    QString styleSideBG = "background: #ECECEC";
 
     if (isHovered || isSelected) {
-        styleCentralBG = "background #F0F0F0";
-        styleSideBG = "background #DEDEDE";
+        styleCentralBG = "background: #F0F0F0";
+        styleSideBG = "background: #DEDEDE";
     }
 
     leftPart->setStyleSheet(styleSideBG);

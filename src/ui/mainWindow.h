@@ -35,7 +35,7 @@ private:
 
     QWidget *mainWidget;
     QVBoxLayout *mainLayout;
-    QListWidget *sleepListWidget;
+    QVBoxLayout *sleepListLayout;
 
     QVector<sleepTime> sleepData;
 };
