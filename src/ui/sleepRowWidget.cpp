@@ -1,13 +1,16 @@
 #include "sleepRowWidget.h"
 #include <QHBoxLayout>
+#include <QLabel>
 
-SleepRowWidget::SleepRowWidget(int index, QString& date, QString& time,
-        QString& duration, QWidget *parent)
-    : QWidget(parent), rowIndex(index), isHovered(false), _date(date), _time(time), _duration(duration) {
+SleepRowWidget::SleepRowWidget(int index, QString date, QString time,
+        QString duration, QWidget *parent)
+        : QWidget(parent), rowIndex(index), isHovered(false), _date(date), _time(time), _duration(duration),
+        _time_converted(0), _duration_converted(0){
 
-    setFixedHeight(27);
     setMouseTracking(true);
+
     start_time = "16:00";
+
     setupUI();
     calculateTimePositions();
 }
@@ -44,7 +47,16 @@ void SleepRowWidget::setupUI() {
 }
 
 void SleepRowWidget::setupLeftPart() {
-    // soon
+    QHBoxLayout *leftLayout = new QHBoxLayout(leftPart);
+    leftLayout->setContentsMargins(3, 3, 3, 3);
+    leftLayout->setAlignment(Qt::AlignRight);
+
+    dateLabel = new QLabel();
+    dateLabel->setText(_date);
+    dateLabel->setStyleSheet("color: #000000");
+    dateLabel->setAlignment(Qt::AlignRight);
+
+    leftLayout->addWidget(dateLabel);
 }
 
 void SleepRowWidget::setupCentral() {
@@ -91,6 +103,7 @@ void SleepRowWidget::updateStyle() {
 }
 
 float SleepRowWidget::convertTime(QString time_local) {
+    if ( time_local.length() == 0 ) return 0;
     int hours = QString(time_local[0]).toInt() * 10 + QString(time_local[1]).toInt();
     int minutes_raw = QString(time_local[3]).toInt() * 10 + QString(time_local[4]).toInt();
     int minutes_rounded = (minutes_raw + 7) / 15 * 15;
@@ -119,7 +132,7 @@ void SleepRowWidget::calculateTimePositions() {
         _duration_converted = pixelsPerHour * duration_h;
 
         if (progressBar) {
-            int barWidth = qMax(10, qMin(centerPart->width(), (int)_duration_converted));
+            int barWidth = qMax(0, qMin(centerPart->width(), (int)_duration_converted));
             int barPosition = qMax(0, qMin(centerPart->width() - barWidth, (int)_time_converted - BASE_OFFSET));
 
             progressBar->setFixedWidth(barWidth);

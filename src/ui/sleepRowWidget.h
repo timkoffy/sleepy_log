@@ -1,13 +1,14 @@
 #ifndef SLEEPY_LOG_SLEEPROWWIDGET_H
 #define SLEEPY_LOG_SLEEPROWWIDGET_H
 
+#include <QLabel>
 #include <QWidget>
 
 class SleepRowWidget : public QWidget {
     Q_OBJECT
 public:
-    explicit SleepRowWidget(int index, QString& date, QString& time,
-        QString& duration, QWidget *parent = nullptr);
+    explicit SleepRowWidget(int index, QString date, QString time,
+        QString duration, QWidget *parent = nullptr);
 
 signals:
     void rowClicked(int index);
@@ -20,7 +21,12 @@ protected:
     void leaveEvent(QEvent *event) override;
 
 private:
+    QWidget* leftPart;
+    QWidget* centerPart;
+    QWidget* rightPart;
     QWidget* progressBar;
+    QLabel* dateLabel;
+
     int rowIndex;
     bool isHovered;
     bool isSelected;
@@ -36,10 +42,6 @@ private:
     QString _duration;
     float duration_h;
     int _duration_converted;
-
-    QWidget* leftPart;
-    QWidget* centerPart;
-    QWidget* rightPart;
 
     float convertTime(QString time_local);
     void setupUI();

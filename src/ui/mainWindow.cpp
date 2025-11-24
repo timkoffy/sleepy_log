@@ -27,33 +27,39 @@ void MainWindow::setupUI() {
     mainWidget->setFixedSize(773, 711);
     mainWidget->setStyleSheet("background: #FFFFFF;");
 
-    mainLayout = new QVBoxLayout(mainWidget);
+    QVBoxLayout *mainLayout = new QVBoxLayout(mainWidget);
     mainLayout->setContentsMargins(0, 0, 0, 0);
-    mainLayout->setSpacing(0);
 
-    sleepListLayout = new QVBoxLayout;
-    sleepListLayout->setContentsMargins(0, 0, 0, 0);
-    sleepListLayout->setSpacing(0);
+    sleepListWidget = new QListWidget();
+    sleepListWidget->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+    sleepListWidget->setStyleSheet("QListWidget { border: none; background: white; }");
 
-    for (int i = 0; i < 30; i++) {
+    QDate currentDate = QDate::currentDate();
+    QString dateString = currentDate.toString("yyyy.MM.dd");
+
+    QDate date(currentDate.year(), 1, 1);
+    for (int i = 0; i < 365; i++) {
         sleepTime t;
-        t.index = 0;
-        t.date = "12/11/2025";
-        t.time = "23:35";
-        t.duration = "05:10";
+        t.date = date.toString("MM.dd");
         createSleepItem(t);
+        date = date.addDays(1);
     }
 
-    mainLayout->addLayout(sleepListLayout);
+    mainLayout->addWidget(sleepListWidget);
 
     this->show();
 }
 
 void MainWindow::createSleepItem(sleepTime &sleepItem) {
-    auto w = new SleepRowWidget(sleepItem.index, sleepItem.date, sleepItem.time, sleepItem.duration, mainWidget);
-    connect(w, &SleepRowWidget::rowClicked, this, &MainWindow::onRowClicked);
-    connect(w, &SleepRowWidget::rowHovered, this, &MainWindow::onRowHovered);
-    sleepListLayout->addWidget(w);
+    QListWidgetItem *item = new QListWidgetItem();
+    item->setSizeHint(QSize(0, 27));
+
+    SleepRowWidget* rowWidget = new SleepRowWidget(sleepItem.index, sleepItem.date, sleepItem.start, sleepItem.duration);
+    sleepListWidget->addItem(item);
+    sleepListWidget->setItemWidget(item, rowWidget);
+
+    connect(rowWidget, &SleepRowWidget::rowClicked, this, &MainWindow::onRowClicked);
+    connect(rowWidget, &SleepRowWidget::rowHovered, this, &MainWindow::onRowHovered);
 }
 
 void MainWindow::loadSleepData() {

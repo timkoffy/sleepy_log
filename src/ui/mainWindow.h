@@ -12,7 +12,7 @@ class QWidget;
 struct sleepTime {
     int index;
     QString date;
-    QString time;
+    QString start;
     QString duration;
 };
 
@@ -35,7 +35,9 @@ private:
 
     QWidget *mainWidget;
     QVBoxLayout *mainLayout;
-    QVBoxLayout *sleepListLayout;
+    QListWidget *sleepListWidget;
+
+    int yearCurrent;
 
     QVector<sleepTime> sleepData;
 };
