@@ -11,20 +11,16 @@
 #include "sleepRowWidget.h"
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent) {
+    : QMainWindow(parent), editMode(false) {
     setupUI();
     loadSleepData();
-}
-
-MainWindow::~MainWindow() {
-    saveSleepData();
 }
 
 void MainWindow::setupUI() {
     mainWidget = new QWidget(this);
     setCentralWidget(mainWidget);
 
-    mainWidget->setFixedSize(773, 711);
+    mainWidget->setMinimumSize(773, 711);
     mainWidget->setStyleSheet("background: #FFFFFF;");
 
     QVBoxLayout *mainLayout = new QVBoxLayout(mainWidget);
@@ -63,15 +59,10 @@ void MainWindow::createSleepItem(sleepTime &sleepItem) {
 }
 
 void MainWindow::loadSleepData() {
-
-}
-
-void MainWindow::saveSleepData() {
-
+    // soon
 }
 
 void MainWindow::onRowClicked(int rowIndex) {
-}
-
-void MainWindow::onRowHovered(int rowIndex, bool hovered) {
+    editMode = true;
+    // soon
 }

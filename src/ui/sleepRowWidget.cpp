@@ -4,7 +4,7 @@
 
 SleepRowWidget::SleepRowWidget(int index, QString date, QString time,
         QString duration, QWidget *parent)
-        : QWidget(parent), rowIndex(index), isHovered(false), _date(date), _time(time), _duration(duration),
+        : QWidget(parent), rowIndex(index), isHovered(false), isSelected(false), _date(date), _time(time), _duration(duration),
         _time_converted(0), _duration_converted(0){
 
     setMouseTracking(true);
@@ -73,29 +73,43 @@ void SleepRowWidget::setupCentral() {
 
 void SleepRowWidget::resizeEvent(QResizeEvent* event) {
     QWidget::resizeEvent(event);
-    calculateTimePositions(); // Пересчет при изменении размера
+    calculateTimePositions();
 }
 
 void SleepRowWidget::mousePressEvent(QMouseEvent *event) {
-    // soon
+    isSelected = !isSelected;
+    updateStyle();
+
+    emit rowClicked(rowIndex);
+
+    QWidget::mousePressEvent(event);
 }
 
 void SleepRowWidget::enterEvent(QEnterEvent *event) {
-    // soon
+    isHovered = true;
+    updateStyle();
+
+    QWidget::enterEvent(event);
 }
 
 void SleepRowWidget::leaveEvent(QEvent *event) {
-    // soon
+    isHovered = false;
+    updateStyle();
+
+    QWidget::leaveEvent(event);
 }
 
 void SleepRowWidget::updateStyle() {
     QString styleCentralBG = "background: #FFFFFF";
     QString styleSideBG = "background: #ECECEC";
 
-    // if (isHovered || isSelected) {
-    //     styleCentralBG = "background: #F0F0F0";
-    //     styleSideBG = "background: #DEDEDE";
-    // }
+    if (isSelected) {
+        styleCentralBG = "background: #AFAFAA";
+        styleSideBG = "background: #AFAAAA";
+    } if (isHovered) {
+        styleCentralBG = "background: #F0F0F0";
+        styleSideBG = "background: #DEDEDE";
+    }
 
     leftPart->setStyleSheet(styleSideBG);
     rightPart->setStyleSheet(styleSideBG);
@@ -111,8 +125,7 @@ float SleepRowWidget::convertTime(QString time_local) {
     if (minutes_rounded >= 60) {
         minutes_rounded = 0;
         hours++;
-    }
-    return hours+minutes_rounded/60.f;
+    } return hours+minutes_rounded/60.f;
 };
 
 void SleepRowWidget::calculateTimePositions() {

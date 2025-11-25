@@ -21,17 +21,15 @@ class MainWindow : public QMainWindow {
 
 public:
     MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+    bool editMode;
 
 private slots:
     void onRowClicked(int index);
-    void onRowHovered(int index, bool hovered);
 
 private:
     void setupUI();
     void createSleepItem(sleepTime &sleepItem);
     void loadSleepData();
-    void saveSleepData();
 
     QWidget *mainWidget;
     QVBoxLayout *mainLayout;
