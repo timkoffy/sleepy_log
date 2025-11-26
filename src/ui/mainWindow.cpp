@@ -12,8 +12,9 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent) {
-    setupUI();
+    editMode = false;
     loadSleepData();
+    setupUI();
 }
 
 void MainWindow::setupUI() {
@@ -34,15 +35,14 @@ void MainWindow::setupUI() {
     QString dateString = currentDate.toString("yyyy.MM.dd");
 
     QDate date(currentDate.year(), 1, 1);
-    int indexes[] = {1,3,6,10};
     int j = 0;
     for (int i = 0; i < 365; i++) {
         sleepTime t;
         t.index = i;
         t.date = date.toString("MM.dd");
-        if (i == indexes[j]) {
-            t.start = "23:00";
-            t.duration = "08:00";
+        if (j < sleepData.size() && sleepData[j].index == i) {
+            t.start = sleepData[j].start;
+            t.duration = sleepData[j].duration;
             j++;
         }
         createSleepItem(t);
@@ -67,9 +67,30 @@ void MainWindow::createSleepItem(sleepTime &sleepItem) {
 }
 
 void MainWindow::onRowClicked(int index) {
-    emit editModeChanged(index);
+    if (!editMode) {
+        editMode = true;
+        emit editModeChanged(index);
+    }
 }
 
 void MainWindow::loadSleepData() {
+    QJsonDocument doc;
+    {
+        QFile fin("../data.json");
+        fin.open(QIODevice::ReadOnly);
+        QByteArray ba = fin.readAll();
+        doc = QJsonDocument::fromJson(ba);
+    }
 
+    if (doc.isArray()) {
+        QJsonArray arrayJson = doc.array();
+        for (QJsonValue valueJson : arrayJson) {
+            QJsonObject obj = valueJson.toObject();
+            sleepTime t;
+            t.index = obj["index"].toInt();
+            t.start = obj["start"].toString();
+            t.duration = obj["duration"].toString();
+            sleepData.append(t);
+        }
+    }
 }

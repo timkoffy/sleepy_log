@@ -38,6 +38,7 @@ private:
     QListWidget *sleepListWidget;
 
     int yearCurrent;
+    bool editMode;
 
     QVector<sleepTime> sleepData;
 };
