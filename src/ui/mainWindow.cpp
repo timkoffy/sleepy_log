@@ -11,7 +11,7 @@
 #include "sleepRowWidget.h"
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), editMode(false) {
+    : QMainWindow(parent) {
     setupUI();
     loadSleepData();
 }
@@ -28,15 +28,23 @@ void MainWindow::setupUI() {
 
     sleepListWidget = new QListWidget();
     sleepListWidget->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
-    sleepListWidget->setStyleSheet("QListWidget { border: none; background: white; }");
+    sleepListWidget->setStyleSheet("QListWidget { border: none; }");
 
     QDate currentDate = QDate::currentDate();
     QString dateString = currentDate.toString("yyyy.MM.dd");
 
     QDate date(currentDate.year(), 1, 1);
+    int indexes[] = {1,3,6,10};
+    int j = 0;
     for (int i = 0; i < 365; i++) {
         sleepTime t;
+        t.index = i;
         t.date = date.toString("MM.dd");
+        if (i == indexes[j]) {
+            t.start = "23:00";
+            t.duration = "08:00";
+            j++;
+        }
         createSleepItem(t);
         date = date.addDays(1);
     }
@@ -47,7 +55,7 @@ void MainWindow::setupUI() {
 }
 
 void MainWindow::createSleepItem(sleepTime &sleepItem) {
-    QListWidgetItem *item = new QListWidgetItem();
+    QListWidgetItem* item = new QListWidgetItem();
     item->setSizeHint(QSize(0, 27));
 
     SleepRowWidget* rowWidget = new SleepRowWidget(sleepItem.index, sleepItem.date, sleepItem.start, sleepItem.duration);
@@ -55,14 +63,13 @@ void MainWindow::createSleepItem(sleepTime &sleepItem) {
     sleepListWidget->setItemWidget(item, rowWidget);
 
     connect(rowWidget, &SleepRowWidget::rowClicked, this, &MainWindow::onRowClicked);
-    connect(rowWidget, &SleepRowWidget::rowHovered, this, &MainWindow::onRowHovered);
+    connect(this, &MainWindow::editModeChanged, rowWidget, &SleepRowWidget::onEditModeChanged);
+}
+
+void MainWindow::onRowClicked(int index) {
+    emit editModeChanged(index);
 }
 
 void MainWindow::loadSleepData() {
-    // soon
-}
 
-void MainWindow::onRowClicked(int rowIndex) {
-    editMode = true;
-    // soon
 }

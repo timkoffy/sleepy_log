@@ -21,7 +21,9 @@ class MainWindow : public QMainWindow {
 
 public:
     MainWindow(QWidget *parent = nullptr);
-    bool editMode;
+
+signals:
+    void editModeChanged(int index);
 
 private slots:
     void onRowClicked(int index);

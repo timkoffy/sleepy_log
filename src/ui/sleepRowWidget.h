@@ -4,11 +4,14 @@
 #include <QLabel>
 #include <QWidget>
 
+class QHBoxLayout;
+
 class SleepRowWidget : public QWidget {
     Q_OBJECT
 public:
-    explicit SleepRowWidget(int index, QString date, QString time,
+    explicit SleepRowWidget(int index, QString date, QString start,
         QString duration, QWidget *parent = nullptr);
+    void setProgressBar(QString startLocal, QString durationLocal);
 
 signals:
     void rowClicked(int index);
@@ -20,6 +23,9 @@ protected:
     void enterEvent(QEnterEvent *event) override;
     void leaveEvent(QEvent *event) override;
 
+public slots:
+    void onEditModeChanged(int index);
+
 private:
     QWidget* leftPart;
     QWidget* centerPart;
@@ -27,17 +33,21 @@ private:
     QWidget* progressBar;
     QLabel* dateLabel;
 
+    QHBoxLayout* leftLayout;
+    QHBoxLayout* centerLayout;
+
     int rowIndex;
     bool isHovered;
     bool isSelected;
+    bool editMode;
+    bool isEdited;
 
-    QString start_time;
-
+    QString left_time;
     QString _date;
 
-    QString _time;
-    float time_h;
-    int _time_converted;
+    QString _start;
+    float start_h;
+    int _start_converted;
 
     QString _duration;
     float duration_h;
@@ -48,7 +58,6 @@ private:
     void setupLeftPart();
     void setupCentral();
     void updateStyle();
-    void calculateTimePositions();
     void saveSleepData();
 };
 

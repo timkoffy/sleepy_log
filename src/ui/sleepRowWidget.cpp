@@ -2,17 +2,15 @@
 #include <QHBoxLayout>
 #include <QLabel>
 
-SleepRowWidget::SleepRowWidget(int index, QString date, QString time,
+SleepRowWidget::SleepRowWidget(int index, QString date, QString start,
         QString duration, QWidget *parent)
-        : QWidget(parent), rowIndex(index), isHovered(false), isSelected(false), _date(date), _time(time), _duration(duration),
-        _time_converted(0), _duration_converted(0){
-
+        : QWidget(parent), rowIndex(index), isHovered(false), isSelected(false), _date(date), _start(start), _duration(duration),
+        _start_converted(0), _duration_converted(0), isEdited(false) {
     setMouseTracking(true);
-
-    start_time = "16:00";
+    left_time = "12:00";
 
     setupUI();
-    calculateTimePositions();
+    setProgressBar(_start, _duration);
 }
 
 void SleepRowWidget::setupUI() {
@@ -47,7 +45,7 @@ void SleepRowWidget::setupUI() {
 }
 
 void SleepRowWidget::setupLeftPart() {
-    QHBoxLayout *leftLayout = new QHBoxLayout(leftPart);
+    leftLayout = new QHBoxLayout(leftPart);
     leftLayout->setContentsMargins(3, 3, 3, 3);
     leftLayout->setAlignment(Qt::AlignRight);
 
@@ -60,8 +58,8 @@ void SleepRowWidget::setupLeftPart() {
 }
 
 void SleepRowWidget::setupCentral() {
-    QHBoxLayout *centerLayout = new QHBoxLayout(centerPart);
-    centerLayout->setContentsMargins(_time_converted, 0, 0, 0);
+    centerLayout = new QHBoxLayout(centerPart);
+    centerLayout->setContentsMargins(_start_converted, 0, 0, 0);
     centerLayout->setAlignment(Qt::AlignLeft);
 
     progressBar = new QWidget();
@@ -73,11 +71,11 @@ void SleepRowWidget::setupCentral() {
 
 void SleepRowWidget::resizeEvent(QResizeEvent* event) {
     QWidget::resizeEvent(event);
-    calculateTimePositions();
+    setProgressBar(_start, _duration);
 }
 
 void SleepRowWidget::mousePressEvent(QMouseEvent *event) {
-    isSelected = !isSelected;
+    if (!editMode) isSelected = !isSelected;
     updateStyle();
 
     emit rowClicked(rowIndex);
@@ -86,31 +84,32 @@ void SleepRowWidget::mousePressEvent(QMouseEvent *event) {
 }
 
 void SleepRowWidget::enterEvent(QEnterEvent *event) {
-    isHovered = true;
-    updateStyle();
-
-    QWidget::enterEvent(event);
+    if (!editMode) {
+        isHovered = true;
+        updateStyle();
+    } QWidget::enterEvent(event);
 }
 
 void SleepRowWidget::leaveEvent(QEvent *event) {
-    isHovered = false;
-    updateStyle();
-
-    QWidget::leaveEvent(event);
+    if (!editMode) {
+        isHovered = false;
+        updateStyle();
+    } QWidget::leaveEvent(event);
 }
 
 void SleepRowWidget::updateStyle() {
     QString styleCentralBG = "background: #FFFFFF";
     QString styleSideBG = "background: #ECECEC";
+    QString styleProgressBarBG = "background: #667AFF";
 
-    if (isSelected) {
-        styleCentralBG = "background: #AFAFAA";
-        styleSideBG = "background: #AFAAAA";
-    } if (isHovered) {
+    if (editMode && !isEdited) {
+        styleProgressBarBG = "background: #BDC5F8";
+    } else if (isHovered || isSelected) {
         styleCentralBG = "background: #F0F0F0";
         styleSideBG = "background: #DEDEDE";
     }
 
+    progressBar->setStyleSheet(styleProgressBarBG);
     leftPart->setStyleSheet(styleSideBG);
     rightPart->setStyleSheet(styleSideBG);
     centerPart->setStyleSheet(styleCentralBG);
@@ -126,38 +125,42 @@ float SleepRowWidget::convertTime(QString time_local) {
         minutes_rounded = 0;
         hours++;
     } return hours+minutes_rounded/60.f;
-};
+}
 
-void SleepRowWidget::calculateTimePositions() {
-    time_h = convertTime(_time);
-    duration_h = convertTime(_duration);
-    int start_time_h = convertTime(start_time);
+void SleepRowWidget::setProgressBar(QString startLocal, QString durationLocal) {
+    start_h = convertTime(startLocal);
+    duration_h = convertTime(durationLocal);
+    int start_time_h = convertTime(left_time);
 
     if (centerPart) {
-        const int VISIBLE_HOURS = 20;
+        const int VISIBLE_HOURS = 24;
         const int BASE_OFFSET = 100;
 
         float pixelsPerHour = centerPart->width() / (float)VISIBLE_HOURS;
 
-        float hoursFromStart = time_h - start_time_h;
-        _time_converted = pixelsPerHour * hoursFromStart + BASE_OFFSET;
+        float hoursFromStart = start_h - start_time_h;
+        _start_converted = pixelsPerHour * hoursFromStart + BASE_OFFSET;
 
         _duration_converted = pixelsPerHour * duration_h;
 
         if (progressBar) {
-            int barWidth = qMax(0, qMin(centerPart->width(), (int)_duration_converted));
-            int barPosition = qMax(0, qMin(centerPart->width() - barWidth, (int)_time_converted - BASE_OFFSET));
+            int barWidth = _duration_converted;
+            int barPosition = _start_converted - BASE_OFFSET;
 
             progressBar->setFixedWidth(barWidth);
-
-            QHBoxLayout* centerLayout = qobject_cast<QHBoxLayout*>(centerPart->layout());
-            if (centerLayout) {
-                centerLayout->setContentsMargins(barPosition, 0, 0, 0);
-            }
+            centerLayout->setContentsMargins(barPosition, 0, 0, 0);
         }
     }
 }
 
 void SleepRowWidget::saveSleepData() {
 
+}
+
+void SleepRowWidget::onEditModeChanged(int index) {
+    editMode = true;
+    if (index == rowIndex) {
+        isEdited = true;
+    }
+    updateStyle();
 }
