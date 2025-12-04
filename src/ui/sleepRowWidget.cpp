@@ -3,15 +3,13 @@
 #include <QLabel>
 
 SleepRowWidget::SleepRowWidget(int index, QString date, QString start,
-        QString duration, QWidget *parent)
-        : QWidget(parent), rowIndex(index), isHovered(false), isSelected(false),
-        _date(date), _start(start), _duration(duration),
-        _start_converted(0), _duration_converted(0), isEdited(false) {
+        QString end, QWidget *parent)
+        : QWidget(parent), rowIndex(index),
+        _date(date), _start(start), _end(end) {
     setMouseTracking(true);
-    left_time = "12:00";
 
     setupUI();
-    setProgressBar(_start, _duration);
+    setProgressBar(_start, _end);
 }
 
 void SleepRowWidget::setupUI() {
@@ -37,12 +35,8 @@ void SleepRowWidget::setupUI() {
     setupCentral();
 
     layout->addWidget(leftPart);
-    layout->addWidget(centerPart, 1);
+    layout->addWidget(centerPart);
     layout->addWidget(rightPart);
-
-    updateStyle();
-
-    this->show();
 }
 
 void SleepRowWidget::setupLeftPart() {
@@ -60,11 +54,11 @@ void SleepRowWidget::setupLeftPart() {
 
 void SleepRowWidget::setupCentral() {
     centerLayout = new QHBoxLayout(centerPart);
-    centerLayout->setContentsMargins(_start_converted, 0, 0, 0);
+    centerLayout->setContentsMargins(0, 0, 0, 0);
     centerLayout->setAlignment(Qt::AlignLeft);
 
     progressBar = new QWidget();
-    progressBar->setFixedWidth(_duration_converted);
+    progressBar->setFixedWidth(end_px);
     progressBar->setStyleSheet("background: #667AFF");
 
     centerLayout->addWidget(progressBar);
@@ -72,7 +66,7 @@ void SleepRowWidget::setupCentral() {
 
 void SleepRowWidget::resizeEvent(QResizeEvent* event) {
     QWidget::resizeEvent(event);
-    setProgressBar(_start, _duration);
+    setProgressBar(_start, _end);
 }
 
 void SleepRowWidget::mousePressEvent(QMouseEvent *event) {
@@ -103,12 +97,10 @@ void SleepRowWidget::updateStyle() {
     QString styleSideBG = "background: #ECECEC";
     QString styleProgressBarBG = "background: #667AFF";
 
-    if (editMode) {
-        if (!isEdited) {
-            styleProgressBarBG = "background: #BDC5F8";
-        } else {
-            setupEditModeUI();
-        }
+    if (editMode && !isEdited) {
+        styleProgressBarBG = "background: #BDC5F8";
+    } else if (editMode && isEdited) {
+        setupEditModeUI();
     } else if (isHovered || isSelected) {
         styleCentralBG = "background: #F0F0F0";
         styleSideBG = "background: #DEDEDE";
@@ -124,28 +116,32 @@ float SleepRowWidget::convertTime(QString time_local) {
     if ( time_local.length() == 0 ) return 0;
     int hours = QString(time_local[0]).toInt() * 10 + QString(time_local[1]).toInt();
     int minutes = QString(time_local[3]).toInt() * 10 + QString(time_local[4]).toInt();
+    if (hours < 12) {
+        hours+=24;
+    }
     return hours+minutes/60.f;
 }
 
-void SleepRowWidget::setProgressBar(QString startLocal, QString durationLocal) {
+void SleepRowWidget::setProgressBar(QString startLocal, QString endLocal) {
     start_h = convertTime(startLocal);
-    duration_h = convertTime(durationLocal);
-    int start_time_h = convertTime(left_time);
+    end_h = convertTime(endLocal);
 
     if (centerPart) {
+        const int LEFT_TIME = 12;
         const int VISIBLE_HOURS = 24;
         const int BASE_OFFSET = 100;
 
         float pixelsPerHour = centerPart->width() / (float)VISIBLE_HOURS;
 
-        float hoursFromStart = start_h - start_time_h;
-        _start_converted = pixelsPerHour * hoursFromStart + BASE_OFFSET;
+        float hoursFromStart = start_h - LEFT_TIME;
+        start_px = pixelsPerHour * hoursFromStart;
 
-        _duration_converted = pixelsPerHour * duration_h;
+        float hoursFromEnd = end_h - LEFT_TIME;
+        end_px = pixelsPerHour * hoursFromEnd;
 
         if (progressBar) {
-            int barWidth = _duration_converted;
-            int barPosition = _start_converted - BASE_OFFSET;
+            int barWidth = end_px - start_px;
+            int barPosition = start_px - BASE_OFFSET;
 
             progressBar->setFixedWidth(barWidth);
             centerLayout->setContentsMargins(barPosition, 0, 0, 0);
@@ -167,9 +163,11 @@ void SleepRowWidget::onEditModeChanged(int index) {
 
 void SleepRowWidget::setupEditModeUI() {
     QLabel* editModeDurationLabel = new QLabel;
-    QString editModeDurationText = QString::number(duration_h) + " ч";
+    QString editModeDurationText = QString::number(end_h-start_h) + " ч";
     editModeDurationLabel->setText(editModeDurationText);
     QHBoxLayout* progressBarLayout = new QHBoxLayout(progressBar);
     progressBarLayout->setAlignment(Qt::AlignCenter);
     progressBarLayout->addWidget(editModeDurationLabel);
+
+
 }

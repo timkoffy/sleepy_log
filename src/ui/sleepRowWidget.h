@@ -9,8 +9,8 @@ class SleepRowWidget : public QWidget {
     Q_OBJECT
 public:
     explicit SleepRowWidget(int index, QString date, QString start,
-        QString duration, QWidget *parent = nullptr);
-    void setProgressBar(QString startLocal, QString durationLocal);
+        QString end, QWidget *parent = nullptr);
+    void setProgressBar(QString startLocal, QString endLocal);
 
 signals:
     void rowClicked(int index);
@@ -36,21 +36,20 @@ private:
     QHBoxLayout* centerLayout;
 
     int rowIndex;
-    bool isHovered;
-    bool isSelected;
-    bool editMode;
-    bool isEdited;
+    bool isHovered = false;
+    bool isSelected = false;
+    bool editMode = false;
+    bool isEdited = false;
 
-    QString left_time;
     QString _date;
 
     QString _start;
     float start_h;
-    int _start_converted;
+    int start_px = 0;
 
-    QString _duration;
-    float duration_h;
-    int _duration_converted;
+    QString _end;
+    float end_h;
+    int end_px = 0;
 
     float convertTime(QString time_local);
     void setupUI();

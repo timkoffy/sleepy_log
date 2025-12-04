@@ -13,7 +13,7 @@ struct sleepTime {
     int index;
     QString date;
     QString start;
-    QString duration;
+    QString end;
 };
 
 class MainWindow : public QMainWindow {

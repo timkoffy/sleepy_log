@@ -41,7 +41,7 @@ void MainWindow::setupUI() {
         t.date = date.toString("MM.dd");
         if (j < sleepData.size() && sleepData[j].index == i) {
             t.start = sleepData[j].start;
-            t.duration = sleepData[j].duration;
+            t.end = sleepData[j].end;
             j++;
         }
         createSleepItem(t);
@@ -57,7 +57,7 @@ void MainWindow::createSleepItem(sleepTime &sleepItem) {
     QListWidgetItem* item = new QListWidgetItem();
     item->setSizeHint(QSize(0, 27));
 
-    SleepRowWidget* rowWidget = new SleepRowWidget(sleepItem.index, sleepItem.date, sleepItem.start, sleepItem.duration);
+    SleepRowWidget* rowWidget = new SleepRowWidget(sleepItem.index, sleepItem.date, sleepItem.start, sleepItem.end);
     sleepListWidget->addItem(item);
     sleepListWidget->setItemWidget(item, rowWidget);
 
@@ -88,7 +88,7 @@ void MainWindow::loadSleepData() {
             sleepTime t;
             t.index = obj["index"].toInt();
             t.start = obj["start"].toString();
-            t.duration = obj["duration"].toString();
+            t.end = obj["end"].toString();
             sleepData.append(t);
         }
     }
