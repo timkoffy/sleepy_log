@@ -7,6 +7,8 @@ SleepRowWidget::SleepRowWidget(int index, QString date, QString start,
         : QWidget(parent), rowIndex(index),
         _date(date), _start(start), _end(end) {
     setMouseTracking(true);
+    regularBedTime = "23:00";
+    regularWakeUpTime = "07:00";
 
     setupUI();
     setProgressBar(_start, _end);
@@ -55,6 +57,7 @@ void SleepRowWidget::setupLeftPart() {
 void SleepRowWidget::setupCentral() {
     centerLayout = new QHBoxLayout(centerPart);
     centerLayout->setContentsMargins(0, 0, 0, 0);
+    centerLayout->addSpacing(6);
     centerLayout->setAlignment(Qt::AlignLeft);
 
     progressBar = new QWidget();
@@ -70,11 +73,10 @@ void SleepRowWidget::resizeEvent(QResizeEvent* event) {
 }
 
 void SleepRowWidget::mousePressEvent(QMouseEvent *event) {
-    if (!editMode) isSelected = !isSelected;
-    updateStyle();
-
-    emit rowClicked(rowIndex);
-
+    if (!editMode) {
+        updateStyle();
+        emit rowClicked(rowIndex);
+    }
     QWidget::mousePressEvent(event);
 }
 
@@ -97,10 +99,14 @@ void SleepRowWidget::updateStyle() {
     QString styleSideBG = "background: #ECECEC";
     QString styleProgressBarBG = "background: #667AFF";
 
-    if (editMode && !isEdited) {
-        styleProgressBarBG = "background: #BDC5F8";
-    } else if (editMode && isEdited) {
-        setupEditModeUI();
+    if (editMode) {
+        if (!isEdited) {
+            styleProgressBarBG = "background: #BDC5F8";
+        } else {
+            styleCentralBG = "background: #F0F0F0";
+            styleSideBG = "background: #DEDEDE";
+            setupEditModeUI();
+        }
     } else if (isHovered || isSelected) {
         styleCentralBG = "background: #F0F0F0";
         styleSideBG = "background: #DEDEDE";
@@ -116,9 +122,7 @@ float SleepRowWidget::convertTime(QString time_local) {
     if ( time_local.length() == 0 ) return 0;
     int hours = QString(time_local[0]).toInt() * 10 + QString(time_local[1]).toInt();
     int minutes = QString(time_local[3]).toInt() * 10 + QString(time_local[4]).toInt();
-    if (hours < 12) {
-        hours+=24;
-    }
+    if (hours < 12) hours+=24;
     return hours+minutes/60.f;
 }
 
@@ -153,10 +157,11 @@ void SleepRowWidget::saveSleepData() {
 
 }
 
-void SleepRowWidget::onEditModeChanged(int index) {
+void SleepRowWidget::onEditModeEnabled(int index) {
     editMode = true;
-    if (index == rowIndex) {
+    if (editMode && index == rowIndex) {
         isEdited = true;
+        if (start_px == -279) setProgressBar(regularBedTime, regularWakeUpTime);
     }
     updateStyle();
 }
@@ -169,5 +174,21 @@ void SleepRowWidget::setupEditModeUI() {
     progressBarLayout->setAlignment(Qt::AlignCenter);
     progressBarLayout->addWidget(editModeDurationLabel);
 
+    deleteButton = new QPushButton("D");
+    deleteButton->setFixedSize(27,27);
 
+    cancelButton = new QPushButton("C");
+    cancelButton->setFixedSize(27,27);
+    connect(cancelButton, &QPushButton::clicked, this, &SleepRowWidget::onCancelButtonClicked);
+
+    saveButton = new QPushButton("S");
+    saveButton->setFixedSize(27,27);
+
+    centerLayout->addWidget(deleteButton);
+    centerLayout->addWidget(cancelButton);
+    centerLayout->addWidget(saveButton);
+}
+
+void SleepRowWidget::onCancelButtonClicked() {
+    emit editModeDisabled();
 }

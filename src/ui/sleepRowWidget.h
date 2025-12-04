@@ -4,6 +4,7 @@
 #include <QLabel>
 #include <QWidget>
 #include <QHBoxLayout>
+#include <QPushButton>
 
 class SleepRowWidget : public QWidget {
     Q_OBJECT
@@ -14,7 +15,7 @@ public:
 
 signals:
     void rowClicked(int index);
-    void rowHovered(int index, bool hovered);
+    void editModeDisabled();
 
 protected:
     void resizeEvent(QResizeEvent* event) override;
@@ -23,7 +24,7 @@ protected:
     void leaveEvent(QEvent *event) override;
 
 public slots:
-    void onEditModeChanged(int index);
+    void onEditModeEnabled(int index);
 
 private:
     QWidget* leftPart;
@@ -31,6 +32,10 @@ private:
     QWidget* rightPart;
     QWidget* progressBar;
     QLabel* dateLabel;
+
+    QPushButton* deleteButton;
+    QPushButton* cancelButton;
+    QPushButton* saveButton;
 
     QHBoxLayout* leftLayout;
     QHBoxLayout* centerLayout;
@@ -51,6 +56,9 @@ private:
     float end_h;
     int end_px = 0;
 
+    QString regularBedTime;
+    QString regularWakeUpTime;
+
     float convertTime(QString time_local);
     void setupUI();
     void setupLeftPart();
@@ -58,6 +66,7 @@ private:
     void setupEditModeUI();
     void updateStyle();
     void saveSleepData();
+    void onCancelButtonClicked();
 };
 
 #endif //SLEEPY_LOG_SLEEPROWWIDGET_H

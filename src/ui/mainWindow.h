@@ -23,13 +23,15 @@ public:
     MainWindow(QWidget *parent = nullptr);
 
 signals:
-    void editModeChanged(int index);
+    void editModeEnabled(int index);
 
-private slots:
+public slots:
     void onRowClicked(int index);
+    void onEditModeDisabled();
 
 private:
     void setupUI();
+    void setupRowList();
     void createSleepItem(sleepTime &sleepItem);
     void loadSleepData();
 
@@ -37,8 +39,8 @@ private:
     QVBoxLayout *mainLayout;
     QListWidget *sleepListWidget;
 
-    int yearCurrent;
-    bool editMode;
+    QDate currentDate;
+    bool editMode = false;
 
     QVector<sleepTime> sleepData;
 };

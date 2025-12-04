@@ -11,7 +11,7 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent) {
-    editMode = false;
+    currentDate = QDate::currentDate();
     loadSleepData();
     setupUI();
 }
@@ -30,23 +30,7 @@ void MainWindow::setupUI() {
     sleepListWidget->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     sleepListWidget->setStyleSheet("QListWidget { border: none; }");
 
-    QDate currentDate = QDate::currentDate();
-    QString dateString = currentDate.toString("yyyy.MM.dd");
-
-    QDate date(currentDate.year(), 1, 1);
-    int j = 0;
-    for (int i = 0; i < 365; i++) {
-        sleepTime t;
-        t.index = i;
-        t.date = date.toString("MM.dd");
-        if (j < sleepData.size() && sleepData[j].index == i) {
-            t.start = sleepData[j].start;
-            t.end = sleepData[j].end;
-            j++;
-        }
-        createSleepItem(t);
-        date = date.addDays(1);
-    }
+    setupRowList();
 
     mainLayout->addWidget(sleepListWidget);
 
@@ -62,14 +46,21 @@ void MainWindow::createSleepItem(sleepTime &sleepItem) {
     sleepListWidget->setItemWidget(item, rowWidget);
 
     connect(rowWidget, &SleepRowWidget::rowClicked, this, &MainWindow::onRowClicked);
-    connect(this, &MainWindow::editModeChanged, rowWidget, &SleepRowWidget::onEditModeChanged);
+    connect(rowWidget, &SleepRowWidget::editModeDisabled, this, &MainWindow::onEditModeDisabled);
+    connect(this, &MainWindow::editModeEnabled, rowWidget, &SleepRowWidget::onEditModeEnabled);
 }
 
 void MainWindow::onRowClicked(int index) {
     if (!editMode) {
         editMode = true;
-        emit editModeChanged(index);
+        emit editModeEnabled(index);
     }
+}
+
+void MainWindow::onEditModeDisabled() {
+    editMode = false;
+    sleepListWidget->clear();
+    setupRowList();
 }
 
 void MainWindow::loadSleepData() {
@@ -91,5 +82,22 @@ void MainWindow::loadSleepData() {
             t.end = obj["end"].toString();
             sleepData.append(t);
         }
+    }
+}
+
+void MainWindow::setupRowList() {
+    QDate date(currentDate.year(), 1, 1);
+    int j = 0;
+    for (int i = 0; i < 365; i++) {
+        sleepTime t;
+        t.index = i;
+        t.date = date.toString("MM.dd");
+        if (j < sleepData.size() && sleepData[j].index == i) {
+            t.start = sleepData[j].start;
+            t.end = sleepData[j].end;
+            j++;
+        }
+        createSleepItem(t);
+        date = date.addDays(1);
     }
 }
