@@ -3,8 +3,7 @@
 
 #include <QLabel>
 #include <QWidget>
-
-class QHBoxLayout;
+#include <QHBoxLayout>
 
 class SleepRowWidget : public QWidget {
     Q_OBJECT
@@ -57,6 +56,7 @@ private:
     void setupUI();
     void setupLeftPart();
     void setupCentral();
+    void setupEditModeUI();
     void updateStyle();
     void saveSleepData();
 };

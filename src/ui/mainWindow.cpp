@@ -7,7 +7,6 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QJsonObject>
-
 #include "sleepRowWidget.h"
 
 MainWindow::MainWindow(QWidget *parent)

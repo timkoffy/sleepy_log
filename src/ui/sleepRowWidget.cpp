@@ -4,7 +4,8 @@
 
 SleepRowWidget::SleepRowWidget(int index, QString date, QString start,
         QString duration, QWidget *parent)
-        : QWidget(parent), rowIndex(index), isHovered(false), isSelected(false), _date(date), _start(start), _duration(duration),
+        : QWidget(parent), rowIndex(index), isHovered(false), isSelected(false),
+        _date(date), _start(start), _duration(duration),
         _start_converted(0), _duration_converted(0), isEdited(false) {
     setMouseTracking(true);
     left_time = "12:00";
@@ -102,8 +103,12 @@ void SleepRowWidget::updateStyle() {
     QString styleSideBG = "background: #ECECEC";
     QString styleProgressBarBG = "background: #667AFF";
 
-    if (editMode && !isEdited) {
-        styleProgressBarBG = "background: #BDC5F8";
+    if (editMode) {
+        if (!isEdited) {
+            styleProgressBarBG = "background: #BDC5F8";
+        } else {
+            setupEditModeUI();
+        }
     } else if (isHovered || isSelected) {
         styleCentralBG = "background: #F0F0F0";
         styleSideBG = "background: #DEDEDE";
@@ -118,13 +123,8 @@ void SleepRowWidget::updateStyle() {
 float SleepRowWidget::convertTime(QString time_local) {
     if ( time_local.length() == 0 ) return 0;
     int hours = QString(time_local[0]).toInt() * 10 + QString(time_local[1]).toInt();
-    int minutes_raw = QString(time_local[3]).toInt() * 10 + QString(time_local[4]).toInt();
-    int minutes_rounded = (minutes_raw + 7) / 15 * 15;
-
-    if (minutes_rounded >= 60) {
-        minutes_rounded = 0;
-        hours++;
-    } return hours+minutes_rounded/60.f;
+    int minutes = QString(time_local[3]).toInt() * 10 + QString(time_local[4]).toInt();
+    return hours+minutes/60.f;
 }
 
 void SleepRowWidget::setProgressBar(QString startLocal, QString durationLocal) {
@@ -163,4 +163,13 @@ void SleepRowWidget::onEditModeChanged(int index) {
         isEdited = true;
     }
     updateStyle();
+}
+
+void SleepRowWidget::setupEditModeUI() {
+    QLabel* editModeDurationLabel = new QLabel;
+    QString editModeDurationText = QString::number(duration_h) + " ч";
+    editModeDurationLabel->setText(editModeDurationText);
+    QHBoxLayout* progressBarLayout = new QHBoxLayout(progressBar);
+    progressBarLayout->setAlignment(Qt::AlignCenter);
+    progressBarLayout->addWidget(editModeDurationLabel);
 }
