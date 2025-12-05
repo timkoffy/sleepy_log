@@ -2,18 +2,19 @@
 #define SLEEPY_LOG_MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QListWidgetItem>
+#include <QWidget>
 #include <QDateTime>
+#include <QFile>
 #include <QHBoxLayout>
+#include <QListWidget>
 
-class QListWidget;
-class QWidget;
 
-struct sleepTime {
+struct sleepDataStruct {
     int index;
     QString date;
     QString start;
     QString end;
+    bool isEmpty;
 };
 
 class MainWindow : public QMainWindow {
@@ -32,17 +33,20 @@ public slots:
 private:
     void setupUI();
     void setupRowList();
-    void createSleepItem(sleepTime &sleepItem);
-    void loadSleepData();
+    void setupHeaderWidget();
+    void createSleepItem(sleepDataStruct &sleepItem);
+    QVector<sleepDataStruct> loadSleepData(QString path);
 
     QWidget *mainWidget;
     QVBoxLayout *mainLayout;
+    QHBoxLayout *headerLayout;
+    QWidget *headerWidget;
     QListWidget *sleepListWidget;
 
     QDate currentDate;
     bool editMode = false;
 
-    QVector<sleepTime> sleepData;
+    QVector<sleepDataStruct> sleepData;
 };
 
 #endif //SLEEPY_LOG_MAINWINDOW_H

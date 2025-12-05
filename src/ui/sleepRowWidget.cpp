@@ -3,9 +3,9 @@
 #include <QLabel>
 
 SleepRowWidget::SleepRowWidget(int index, QString date, QString start,
-        QString end, QWidget *parent)
+        QString end, bool isEmpty, QWidget *parent)
         : QWidget(parent), rowIndex(index),
-        _date(date), _start(start), _end(end) {
+        _date(date), _start(start), _end(end), _isEmpty(isEmpty){
     setMouseTracking(true);
     regularBedTime = "23:00";
     regularWakeUpTime = "07:00";
@@ -57,7 +57,7 @@ void SleepRowWidget::setupLeftPart() {
 void SleepRowWidget::setupCentral() {
     centerLayout = new QHBoxLayout(centerPart);
     centerLayout->setContentsMargins(0, 0, 0, 0);
-    centerLayout->addSpacing(6);
+    centerLayout->addSpacing(5);
     centerLayout->setAlignment(Qt::AlignLeft);
 
     progressBar = new QWidget();
@@ -118,7 +118,7 @@ void SleepRowWidget::updateStyle() {
     centerPart->setStyleSheet(styleCentralBG);
 }
 
-float SleepRowWidget::convertTime(QString time_local) {
+double SleepRowWidget::convertTime(QString time_local) {
     if ( time_local.length() == 0 ) return 0;
     int hours = QString(time_local[0]).toInt() * 10 + QString(time_local[1]).toInt();
     int minutes = QString(time_local[3]).toInt() * 10 + QString(time_local[4]).toInt();
@@ -133,19 +133,18 @@ void SleepRowWidget::setProgressBar(QString startLocal, QString endLocal) {
     if (centerPart) {
         const int LEFT_TIME = 12;
         const int VISIBLE_HOURS = 24;
-        const int BASE_OFFSET = 100;
 
-        float pixelsPerHour = centerPart->width() / (float)VISIBLE_HOURS;
+        double pixelsPerHour = centerPart->width() / (double)VISIBLE_HOURS;
 
-        float hoursFromStart = start_h - LEFT_TIME;
+        double hoursFromStart = start_h - LEFT_TIME;
         start_px = pixelsPerHour * hoursFromStart;
 
-        float hoursFromEnd = end_h - LEFT_TIME;
+        double hoursFromEnd = end_h - LEFT_TIME;
         end_px = pixelsPerHour * hoursFromEnd;
 
         if (progressBar) {
             int barWidth = end_px - start_px;
-            int barPosition = start_px - BASE_OFFSET;
+            int barPosition = start_px;
 
             progressBar->setFixedWidth(barWidth);
             centerLayout->setContentsMargins(barPosition, 0, 0, 0);
@@ -161,14 +160,14 @@ void SleepRowWidget::onEditModeEnabled(int index) {
     editMode = true;
     if (editMode && index == rowIndex) {
         isEdited = true;
-        if (start_px == -279) setProgressBar(regularBedTime, regularWakeUpTime);
+        if (_isEmpty) setProgressBar(regularBedTime, regularWakeUpTime);
     }
     updateStyle();
 }
 
 void SleepRowWidget::setupEditModeUI() {
     QLabel* editModeDurationLabel = new QLabel;
-    QString editModeDurationText = QString::number(end_h-start_h) + " ч";
+    QString editModeDurationText = QString::number(end_h-start_h, 'f', 1) + " ч";
     editModeDurationLabel->setText(editModeDurationText);
     QHBoxLayout* progressBarLayout = new QHBoxLayout(progressBar);
     progressBarLayout->setAlignment(Qt::AlignCenter);
@@ -176,19 +175,32 @@ void SleepRowWidget::setupEditModeUI() {
 
     deleteButton = new QPushButton("D");
     deleteButton->setFixedSize(27,27);
+    deleteButton->setStyleSheet("color: #000000");
+    connect(deleteButton, &QPushButton::clicked, this, &SleepRowWidget::onDeleteButtonClicked);
 
     cancelButton = new QPushButton("C");
     cancelButton->setFixedSize(27,27);
+    cancelButton->setStyleSheet("color: #000000");
     connect(cancelButton, &QPushButton::clicked, this, &SleepRowWidget::onCancelButtonClicked);
 
     saveButton = new QPushButton("S");
     saveButton->setFixedSize(27,27);
+    saveButton->setStyleSheet("color: #000000");
+    connect(saveButton, &QPushButton::clicked, this, &SleepRowWidget::onSaveButtonClicked);
 
     centerLayout->addWidget(deleteButton);
     centerLayout->addWidget(cancelButton);
     centerLayout->addWidget(saveButton);
 }
 
+void SleepRowWidget::onDeleteButtonClicked() {
+
+}
+
 void SleepRowWidget::onCancelButtonClicked() {
     emit editModeDisabled();
+}
+
+void SleepRowWidget::onSaveButtonClicked() {
+
 }

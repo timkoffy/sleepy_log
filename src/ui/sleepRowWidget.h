@@ -10,7 +10,7 @@ class SleepRowWidget : public QWidget {
     Q_OBJECT
 public:
     explicit SleepRowWidget(int index, QString date, QString start,
-        QString end, QWidget *parent = nullptr);
+        QString end, bool isEmpty, QWidget *parent = nullptr);
     void setProgressBar(QString startLocal, QString endLocal);
 
 signals:
@@ -49,24 +49,29 @@ private:
     QString _date;
 
     QString _start;
-    float start_h;
+    double start_h = 0;
     int start_px = 0;
 
     QString _end;
-    float end_h;
+    double end_h = 0;
     int end_px = 0;
+
+    bool _isEmpty;
 
     QString regularBedTime;
     QString regularWakeUpTime;
 
-    float convertTime(QString time_local);
+    double convertTime(QString time_local);
     void setupUI();
     void setupLeftPart();
     void setupCentral();
     void setupEditModeUI();
     void updateStyle();
     void saveSleepData();
+
     void onCancelButtonClicked();
+    void onDeleteButtonClicked();
+    void onSaveButtonClicked();
 };
 
 #endif //SLEEPY_LOG_SLEEPROWWIDGET_H
