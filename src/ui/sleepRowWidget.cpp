@@ -1,8 +1,5 @@
 #include "sleepRowWidget.h"
-#include <QHBoxLayout>
-#include <QLabel>
-
-#include "../core/sleepDataManager.h"
+#include "../data/sleepDataManager.h"
 
 SleepRowWidget::SleepRowWidget(int index, QString date, QString start,
                                QString end, bool isEmpty, QWidget *parent)
@@ -164,19 +161,28 @@ void SleepRowWidget::setupEditModeUI() {
     progressBarLayout->setAlignment(Qt::AlignCenter);
     progressBarLayout->addWidget(editModeDurationLabel);
 
-    deleteButton = new QPushButton("D");
+    deleteButton = new QPushButton;
     deleteButton->setFixedSize(27,27);
-    deleteButton->setStyleSheet("color: #000000");
+    deleteButton->setIcon(QIcon("../assets/icons/delete_button.png"));
+    deleteButton->setStyleSheet("border: none");
+    deleteButton->setIconSize(QSize(27, 27));
+
     connect(deleteButton, &QPushButton::clicked, this, &SleepRowWidget::onDeleteButtonClicked);
 
-    cancelButton = new QPushButton("C");
+    cancelButton = new QPushButton;
     cancelButton->setFixedSize(27,27);
-    cancelButton->setStyleSheet("color: #000000");
+    cancelButton->setIcon(QIcon("../assets/icons/cancel_button.png"));
+    cancelButton->setStyleSheet("border: none");
+    cancelButton->setIconSize(QSize(27, 27));
+
     connect(cancelButton, &QPushButton::clicked, this, &SleepRowWidget::onCancelButtonClicked);
 
-    saveButton = new QPushButton("S");
+    saveButton = new QPushButton;
     saveButton->setFixedSize(27,27);
-    saveButton->setStyleSheet("color: #000000");
+    saveButton->setIcon(QIcon("../assets/icons/save_button.png"));
+    saveButton->setStyleSheet("border: none");
+    saveButton->setIconSize(QSize(27, 27));
+
     connect(saveButton, &QPushButton::clicked, this, &SleepRowWidget::onSaveButtonClicked);
 
     centerLayout->addWidget(deleteButton);
@@ -189,7 +195,7 @@ void SleepRowWidget::onDeleteButtonClicked() {
 }
 
 void SleepRowWidget::onCancelButtonClicked() {
-    emit editModeDisabled();
+    emit editModeDisabled(rowIndex);
 }
 
 void SleepRowWidget::onSaveButtonClicked() {

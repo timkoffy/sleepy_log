@@ -17,9 +17,9 @@ add_executable(sleepy_log main.cpp
         src/ui/mainWindow.h
         src/ui/sleepRowWidget.cpp
         src/ui/sleepRowWidget.h
-        src/core/sleepDataManager.cpp
-        src/core/sleepDataManager.h
-        src/core/sleepDataStruct.h
+        src/data/sleepDataManager.cpp
+        src/data/sleepDataManager.h
+        src/data/sleepDataStruct.h
 )
 target_link_libraries(sleepy_log
         Qt6::Core

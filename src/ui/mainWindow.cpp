@@ -4,13 +4,15 @@
 #include <QDateTime>
 
 #include "sleepRowWidget.h"
-#include "../core/sleepDataManager.h"
+#include "../data/sleepDataManager.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent) {
     currentDate = QDate::currentDate();
+
     sleepDataManager manager;
-    sleepData = manager.loadSleepData("../data.json");
+    sleepData = manager.loadSleepData("../src/data/data.json");
+
     setupUI();
 }
 
@@ -39,6 +41,9 @@ void MainWindow::setupUI() {
 
     setupRowList();
 
+    sleepListWidget->scrollToItem(sleepListWidget->item(currentDate.dayOfYear()-1),
+        QAbstractItemView::PositionAtCenter);
+
     mainLayout->addWidget(headerWidget);
     mainLayout->addWidget(sleepListWidget);
 
@@ -65,10 +70,12 @@ void MainWindow::onRowClicked(int index) {
     }
 }
 
-void MainWindow::onEditModeDisabled() {
+void MainWindow::onEditModeDisabled(int index) {
     editMode = false;
     sleepListWidget->clear();
     setupRowList();
+    sleepListWidget->scrollToItem(sleepListWidget->item(index),
+        QAbstractItemView::PositionAtCenter);
 }
 
 void MainWindow::setupRowList() {
@@ -88,8 +95,6 @@ void MainWindow::setupRowList() {
         createSleepItem(t);
         date = date.addDays(1);
     }
-    sleepListWidget->scrollToItem(sleepListWidget->item(currentDate.dayOfYear()-1),
-        QAbstractItemView::PositionAtCenter);
 }
 
 void MainWindow::setupHeaderWidget() {

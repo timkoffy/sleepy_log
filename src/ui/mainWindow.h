@@ -8,7 +8,7 @@
 #include <QHBoxLayout>
 #include <QListWidget>
 
-#include "../core/sleepDataStruct.h"
+#include "../data/sleepDataStruct.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -21,7 +21,7 @@ signals:
 
 public slots:
     void onRowClicked(int index);
-    void onEditModeDisabled();
+    void onEditModeDisabled(int index);
 
 private:
     void setupUI();

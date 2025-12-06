@@ -14,7 +14,7 @@ public:
 
 signals:
     void rowClicked(int index);
-    void editModeDisabled();
+    void editModeDisabled(int index);
 
 protected:
     void resizeEvent(QResizeEvent* event) override;
