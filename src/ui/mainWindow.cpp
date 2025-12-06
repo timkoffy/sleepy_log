@@ -2,18 +2,15 @@
 #include <QHBoxLayout>
 #include <QListWidget>
 #include <QDateTime>
-#include <QFile>
-#include <QJsonDocument>
-#include <QJsonArray>
-#include <QJsonObject>
-#include <QPainter>
 
 #include "sleepRowWidget.h"
+#include "../core/sleepDataManager.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent) {
-    currentDate = QDate::currentDate();;
-    sleepData = loadSleepData("../data.json");
+    currentDate = QDate::currentDate();
+    sleepDataManager manager;
+    sleepData = manager.loadSleepData("../data.json");
     setupUI();
 }
 
@@ -21,11 +18,15 @@ void MainWindow::setupUI() {
     mainWidget = new QWidget(this);
     setCentralWidget(mainWidget);
 
-    mainWidget->setMinimumSize(773, 711);
+    setAttribute(Qt::WA_OpaquePaintEvent);
+
+    mainWidget->setMinimumSize(600, 200);
+    resize(900, 800);
     mainWidget->setStyleSheet("background: #FFFFFF;");
 
     QVBoxLayout *mainLayout = new QVBoxLayout(mainWidget);
     mainLayout->setContentsMargins(0, 0, 0, 0);
+    mainLayout->setSpacing(0);
 
     headerWidget = new QWidget();
     headerWidget->setFixedHeight(27);
@@ -70,32 +71,6 @@ void MainWindow::onEditModeDisabled() {
     setupRowList();
 }
 
-QVector<sleepDataStruct> MainWindow::loadSleepData(QString path) {
-    QVector<sleepDataStruct> sleepDataLocal;
-
-    QJsonDocument doc;
-    {
-        QFile fin(path);
-        fin.open(QIODevice::ReadOnly);
-        QByteArray ba = fin.readAll();
-        doc = QJsonDocument::fromJson(ba);
-    }
-
-    if (doc.isArray()) {
-        QJsonArray arrayJson = doc.array();
-        for (QJsonValue valueJson : arrayJson) {
-            QJsonObject obj = valueJson.toObject();
-            sleepDataStruct t;
-            t.index = obj["index"].toInt();
-            t.start = obj["start"].toString();
-            t.end = obj["end"].toString();
-            sleepDataLocal.append(t);
-        }
-    }
-
-    return sleepDataLocal;
-}
-
 void MainWindow::setupRowList() {
     QDate date(currentDate.year(), 1, 1);
     int j = 0;
@@ -119,15 +94,27 @@ void MainWindow::setupRowList() {
 
 void MainWindow::setupHeaderWidget() {
     headerLayout = new QHBoxLayout(headerWidget);
-    headerLayout->setContentsMargins(100, 0, 114, 0);
+    headerLayout->setContentsMargins(0, 0, 0, 0);
     headerLayout->setSpacing(0);
 
-    for (int i = 0; i < 24; i++) {
+    QWidget *leftHeaderPart = new QWidget(headerWidget);
+    leftHeaderPart->setFixedWidth(100);
+    leftHeaderPart->setStyleSheet("background: #ECECEC");
+
+    QWidget *rightHeaderPart = new QWidget(headerWidget);
+    rightHeaderPart->setFixedWidth(114);
+    rightHeaderPart->setStyleSheet("background: #ECECEC");
+
+    headerLayout->addWidget(leftHeaderPart);
+
+    for (int i = 3; i < 27; i++) {
         QString text = QString::number(i);
         QString style = "color: #808080";
-        if (i == 0) text = "12";
+        if (i == 3) text = "";
         if (i > 12) text = QString::number(i - 12);
+        if (i > 24) text = QString::number(i - 24);
         if (i == 11 || i == 19) style = "color: #000000";
+
         QLabel *label = new QLabel();
         label->setText(text);
         label->setStyleSheet(style);
@@ -135,4 +122,6 @@ void MainWindow::setupHeaderWidget() {
         label->setAlignment(Qt::AlignVCenter);
         headerLayout->addWidget(label);
     }
+
+    headerLayout->addWidget(rightHeaderPart);
 }

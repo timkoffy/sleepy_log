@@ -2,8 +2,10 @@
 #include <QHBoxLayout>
 #include <QLabel>
 
+#include "../core/sleepDataManager.h"
+
 SleepRowWidget::SleepRowWidget(int index, QString date, QString start,
-        QString end, bool isEmpty, QWidget *parent)
+                               QString end, bool isEmpty, QWidget *parent)
         : QWidget(parent), rowIndex(index),
         _date(date), _start(start), _end(end), _isEmpty(isEmpty){
     setMouseTracking(true);
@@ -11,7 +13,7 @@ SleepRowWidget::SleepRowWidget(int index, QString date, QString start,
     regularWakeUpTime = "07:00";
 
     setupUI();
-    setProgressBar(_start, _end);
+    setupProgressBar(_start, _end);
 }
 
 void SleepRowWidget::setupUI() {
@@ -69,7 +71,7 @@ void SleepRowWidget::setupCentral() {
 
 void SleepRowWidget::resizeEvent(QResizeEvent* event) {
     QWidget::resizeEvent(event);
-    setProgressBar(_start, _end);
+    setupProgressBar(_start, _end);
 }
 
 void SleepRowWidget::mousePressEvent(QMouseEvent *event) {
@@ -118,20 +120,13 @@ void SleepRowWidget::updateStyle() {
     centerPart->setStyleSheet(styleCentralBG);
 }
 
-double SleepRowWidget::convertTime(QString time_local) {
-    if ( time_local.length() == 0 ) return 0;
-    int hours = QString(time_local[0]).toInt() * 10 + QString(time_local[1]).toInt();
-    int minutes = QString(time_local[3]).toInt() * 10 + QString(time_local[4]).toInt();
-    if (hours < 12) hours+=24;
-    return hours+minutes/60.f;
-}
-
-void SleepRowWidget::setProgressBar(QString startLocal, QString endLocal) {
-    start_h = convertTime(startLocal);
-    end_h = convertTime(endLocal);
+void SleepRowWidget::setupProgressBar(QString startLocal, QString endLocal) {
+    sleepDataManager manager;
+    start_h = manager.convertTime(startLocal);
+    end_h = manager.convertTime(endLocal);
 
     if (centerPart) {
-        const int LEFT_TIME = 12;
+        const int LEFT_TIME = 15;
         const int VISIBLE_HOURS = 24;
 
         double pixelsPerHour = centerPart->width() / (double)VISIBLE_HOURS;
@@ -152,15 +147,11 @@ void SleepRowWidget::setProgressBar(QString startLocal, QString endLocal) {
     }
 }
 
-void SleepRowWidget::saveSleepData() {
-
-}
-
 void SleepRowWidget::onEditModeEnabled(int index) {
     editMode = true;
     if (editMode && index == rowIndex) {
         isEdited = true;
-        if (_isEmpty) setProgressBar(regularBedTime, regularWakeUpTime);
+        if (_isEmpty) setupProgressBar(regularBedTime, regularWakeUpTime);
     }
     updateStyle();
 }

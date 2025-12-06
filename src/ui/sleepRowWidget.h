@@ -11,7 +11,6 @@ class SleepRowWidget : public QWidget {
 public:
     explicit SleepRowWidget(int index, QString date, QString start,
         QString end, bool isEmpty, QWidget *parent = nullptr);
-    void setProgressBar(QString startLocal, QString endLocal);
 
 signals:
     void rowClicked(int index);
@@ -61,13 +60,12 @@ private:
     QString regularBedTime;
     QString regularWakeUpTime;
 
-    double convertTime(QString time_local);
     void setupUI();
     void setupLeftPart();
     void setupCentral();
     void setupEditModeUI();
+    void setupProgressBar(QString startLocal, QString endLocal);
     void updateStyle();
-    void saveSleepData();
 
     void onCancelButtonClicked();
     void onDeleteButtonClicked();

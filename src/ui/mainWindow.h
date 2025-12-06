@@ -8,14 +8,7 @@
 #include <QHBoxLayout>
 #include <QListWidget>
 
-
-struct sleepDataStruct {
-    int index;
-    QString date;
-    QString start;
-    QString end;
-    bool isEmpty;
-};
+#include "../core/sleepDataStruct.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -35,7 +28,6 @@ private:
     void setupRowList();
     void setupHeaderWidget();
     void createSleepItem(sleepDataStruct &sleepItem);
-    QVector<sleepDataStruct> loadSleepData(QString path);
 
     QWidget *mainWidget;
     QVBoxLayout *mainLayout;
